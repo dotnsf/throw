@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8"/>
+<title>Throw sample</title>
+<script type="text/javascript" src="https://code.jquery.com/jquery-2.2.4.min.js"></script>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+
+<style type="text/css">
+html, body{
+  text-align: center;
+  background-color: #fafafa;
+  font-size: 20px;
+  color: #333;
+}
+#mycanvas{
+  border: 1px solid #333;
+}
+</style>
+</head>
+<body>
+
+<div id="canvas_div">
+  <div id="cdiv"></div>
+</div>
+
+<script>
+var isTouch = false;
+var strokes = [];
+var borderWidth = 0; //1;
+$(function(){
+  init();
+});
+
+function init(){
+  $('#cdiv').html( '<canvas width="100%" height="100%" id="mycanvas"></canvas>' );
+
+  var canvas = document.getElementById( 'mycanvas' );
+  if( !canvas || !canvas.getContext ){
+    return false;
+  }
+  var ctx = canvas.getContext( '2d' );
+
+  if( window.TouchEvent ){
+    canvas.addEventListener( "touchstart", touchStart );
+    canvas.addEventListener( "touchmove", touchMove );
+    canvas.addEventListener( "touchend", touchEnd );
+  }
+
+  //. リサイズ時に Canvas サイズを変更する
+  $(window).on( 'load resize', function(){
+    resized();
+  });
+
+  //. スクロール禁止
+  /*
+  $(window).on('touchmove.noScroll', function( e ){
+    e.preventDefault();
+  });
+  */
+  var movefun = function( event ){
+    event.preventDefault();
+  }
+  window.addEventListener( 'touchmove', movefun, { passive: false } );
+}
+
+function resized(){
+  var browserWidth = window.innerWidth;
+  var browserHeight = window.innerHeight;
+  var canvas = document.getElementById( 'mycanvas' );
+  if( canvas && canvas.getContext ){
+    canvas.width = browserWidth * 0.98;
+    canvas.height = browserHeight * 0.98;
+  }
+}
+
+function touchStart( e ){
+  var t = e.changedTouches[0];
+  var rect = e.target.getBoundingClientRect();
+  var x = ( isAndroid() ? t.pageX : e.pageX ) - rect.left - borderWidth;
+  var y = ( isAndroid() ? t.pageY : e.pageY ) - rect.top - borderWidth;
+
+  isTouch = true;
+
+  strokes = [ [ x, y ] ];
+}
+
+function touchMove( e ){
+  //. タッチが動いたら座標値を取得
+  var t = e.changedTouches[0];
+  var rect = e.target.getBoundingClientRect();
+  var x = ( isAndroid() ? t.pageX : e.pageX ) - rect.left - borderWidth;
+  var y = ( isAndroid() ? t.pageY : e.pageY ) - rect.top - borderWidth;
+
+  strokes.push( [ x, y ] );
+}
+
+function touchEnd( e ){
+  //alert( 'touchEnd: ' + strokes.length );
+  isTouch = false;
+
+  if( strokes && strokes.length > 0 ){
+    //. 描画
+    var canvas = document.getElementById( "mycanvas" );
+    var ctx = canvas.getContext( "2d" );
+
+    var s = '';
+    s += '(' + canvas.width + ', ' + canvas.height + ') : ' + strokes.length + '\n';
+
+    //. 始点
+    s += '[' + strokes[0][0] + ',' + strokes[0][1] + ']\n';
+
+    //. 中点
+    var m = Math.floor( strokes.length / 2 );
+    s += ' - [' + strokes[m][0] + ',' + strokes[m][1] + ']\n';
+
+    //. 終点
+    m = strokes.length - 1;
+    s += ' - [' + strokes[m][0] + ',' + strokes[m][1] + ']\n';
+    //alert( s );
+
+    //. カーブかどうかの判断
+    var o = getStrokeOrbit();
+    if( o != 99 ){
+      //. シュート  ストレート   カーブ
+      //. -3  -2  -1   0   1   2   3
+      alert( o );
+    }
+
+    strokes = [];
+  }
+}
+
+function isAndroid(){
+  return ( navigator.userAgent.indexOf( 'Android' ) > 0 );
+}
+
+function getStrokeOrbit(){
+  var o = 99;  //. 無効
+
+  var canvas = document.getElementById( "mycanvas" );
+  var w = canvas.width;
+
+  var x1 = strokes[0][0];
+  var x2 = strokes[Math.floor( strokes.length / 2 )][0];
+  var x3 = strokes[strokes.length-1][0];
+
+  var p1 = getPositionX( x1, w, 5 );
+  var p2 = getPositionX( x2, w, 5 );
+  var p3 = getPositionX( x3, w, 5 );
+
+  if( p1 == 0 ){
+    if( p2 == 0 ){
+      if( p3 == 0 ){
+      }else if( p3 == 1 ){
+      }else if( p3 == 2 ){
+      }else if( p3 == 3 ){
+      }else if( p3 == 4 ){
+      }
+    }else if( p2 == 1 ){
+      if( p3 == 0 ){
+      }else if( p3 == 1 ){
+      }else if( p3 == 2 ){
+      }else if( p3 == 3 ){
+      }else if( p3 == 4 ){
+      }
+    }else if( p2 == 2 ){
+      if( p3 == 0 ){
+      }else if( p3 == 1 ){
+      }else if( p3 == 2 ){
+      }else if( p3 == 3 ){
+      }else if( p3 == 4 ){
+      }
+    }else if( p2 == 3 ){
+      if( p3 == 0 ){
+      }else if( p3 == 1 ){
+      }else if( p3 == 2 ){
+      }else if( p3 == 3 ){
+      }else if( p3 == 4 ){
+      }
+    }else if( p2 == 4 ){
+      if( p3 == 0 ){
+      }else if( p3 == 1 ){
+      }else if( p3 == 2 ){
+      }else if( p3 == 3 ){
+      }else if( p3 == 4 ){
+      }
+    }
+  }else if( p1 == 1 ){
+    if( p2 == 0 ){
+      if( p3 == 0 ){
+      }else if( p3 == 1 ){
+      }else if( p3 == 2 ){
+      }else if( p3 == 3 ){
+      }else if( p3 == 4 ){
+      }
+    }else if( p2 == 1 ){
+      if( p3 == 0 ){
+      }else if( p3 == 1 ){
+      }else if( p3 == 2 ){
+      }else if( p3 == 3 ){
+      }else if( p3 == 4 ){
+      }
+    }else if( p2 == 2 ){
+      if( p3 == 0 ){
+      }else if( p3 == 1 ){
+      }else if( p3 == 2 ){
+      }else if( p3 == 3 ){
+      }else if( p3 == 4 ){
+      }
+    }else if( p2 == 3 ){
+      if( p3 == 0 ){
+      }else if( p3 == 1 ){
+      }else if( p3 == 2 ){
+      }else if( p3 == 3 ){
+      }else if( p3 == 4 ){
+      }
+    }else if( p2 == 4 ){
+      if( p3 == 0 ){
+      }else if( p3 == 1 ){
+      }else if( p3 == 2 ){
+      }else if( p3 == 3 ){
+      }else if( p3 == 4 ){
+      }
+    }
+  }else if( p1 == 2 ){
+    if( p2 == 0 ){
+      if( p3 == 0 ){
+        o = -2;
+      }else if( p3 == 1 ){
+        o = 2;
+      }else if( p3 == 2 ){
+        o = 3;
+      }else if( p3 == 3 ){
+        o = 3;
+      }else if( p3 == 4 ){
+        o = 3;
+      }
+    }else if( p2 == 1 ){
+      if( p3 == 0 ){
+        o = -1;
+      }else if( p3 == 1 ){
+        o = 0;
+      }else if( p3 == 2 ){
+        o = 2;
+      }else if( p3 == 3 ){
+        o = 3;
+      }else if( p3 == 4 ){
+        o = 3;
+      }
+    }else if( p2 == 2 ){
+      if( p3 == 0 ){
+        o = -2;
+      }else if( p3 == 1 ){
+        o = -1;
+      }else if( p3 == 2 ){
+        o = 0;
+      }else if( p3 == 3 ){
+        o = 1;
+      }else if( p3 == 4 ){
+        o = 2;
+      }
+    }else if( p2 == 3 ){
+      if( p3 == 0 ){
+        o = -3;
+      }else if( p3 == 1 ){
+        o = -3;
+      }else if( p3 == 2 ){
+        o = -2;
+      }else if( p3 == 3 ){
+        o = 0;
+      }else if( p3 == 4 ){
+        o = 1;
+      }
+    }else if( p2 == 4 ){
+      if( p3 == 0 ){
+        o = -3;
+      }else if( p3 == 1 ){
+        o = -3;
+      }else if( p3 == 2 ){
+        o = -3;
+      }else if( p3 == 3 ){
+        o = -2;
+      }else if( p3 == 4 ){
+        o = 1;
+      }
+    }
+  }else if( p1 == 3 ){
+    if( p2 == 0 ){
+      if( p3 == 0 ){
+      }else if( p3 == 1 ){
+      }else if( p3 == 2 ){
+      }else if( p3 == 3 ){
+      }else if( p3 == 4 ){
+      }
+    }else if( p2 == 1 ){
+      if( p3 == 0 ){
+      }else if( p3 == 1 ){
+      }else if( p3 == 2 ){
+      }else if( p3 == 3 ){
+      }else if( p3 == 4 ){
+      }
+    }else if( p2 == 2 ){
+      if( p3 == 0 ){
+      }else if( p3 == 1 ){
+      }else if( p3 == 2 ){
+      }else if( p3 == 3 ){
+      }else if( p3 == 4 ){
+      }
+    }else if( p2 == 3 ){
+      if( p3 == 0 ){
+      }else if( p3 == 1 ){
+      }else if( p3 == 2 ){
+      }else if( p3 == 3 ){
+      }else if( p3 == 4 ){
+      }
+    }else if( p2 == 4 ){
+      if( p3 == 0 ){
+      }else if( p3 == 1 ){
+      }else if( p3 == 2 ){
+      }else if( p3 == 3 ){
+      }else if( p3 == 4 ){
+      }
+    }
+  }else if( p1 == 4 ){
+    if( p2 == 0 ){
+      if( p3 == 0 ){
+      }else if( p3 == 1 ){
+      }else if( p3 == 2 ){
+      }else if( p3 == 3 ){
+      }else if( p3 == 4 ){
+      }
+    }else if( p2 == 1 ){
+      if( p3 == 0 ){
+      }else if( p3 == 1 ){
+      }else if( p3 == 2 ){
+      }else if( p3 == 3 ){
+      }else if( p3 == 4 ){
+      }
+    }else if( p2 == 2 ){
+      if( p3 == 0 ){
+      }else if( p3 == 1 ){
+      }else if( p3 == 2 ){
+      }else if( p3 == 3 ){
+      }else if( p3 == 4 ){
+      }
+    }else if( p2 == 3 ){
+      if( p3 == 0 ){
+      }else if( p3 == 1 ){
+      }else if( p3 == 2 ){
+      }else if( p3 == 3 ){
+      }else if( p3 == 4 ){
+      }
+    }else if( p2 == 4 ){
+      if( p3 == 0 ){
+      }else if( p3 == 1 ){
+      }else if( p3 == 2 ){
+      }else if( p3 == 3 ){
+      }else if( p3 == 4 ){
+      }
+    }
+  }
+
+  //alert( 'p1 = ' + p1 + ', p2 = ' + p2 + ' , p3 = ' + p3 + ' -> ' + o );
+  return o;
+}
+
+function getPositionX( x, w, n ){
+  var p = -1;
+
+  if( n > 0 ){
+    for( var i = 0; i < n && p == -1; i ++ ){
+      if( w / n * i <= x && x <= w / n * ( i + 1 ) ){
+        p = i;
+      }
+    }
+  }
+
+  return p;
+}
+</script>
+</body>
+</html>
