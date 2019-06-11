@@ -136,6 +136,40 @@ function isAndroid(){
   return ( navigator.userAgent.indexOf( 'Android' ) > 0 );
 }
 
+function getFlickDirection(){
+  var d = -1;   //. 0: Right, 1: Down, 2: Left, 3: Up
+
+  var canvas = document.getElementById( "mycanvas" );
+  var w = canvas.width;
+  var h = canvas.height;
+
+  var x1 = strokes[0][0];
+  var x2 = strokes[strokes.length-1][0];
+  var y1 = strokes[0][1];
+  var y2 = strokes[strokes.length-1][1];
+
+  var px1 = getPositionX( x1, w, 5 );
+  var px2 = getPositionX( x2, w, 5 );
+  var py1 = getPositionX( y1, h, 5 );
+  var py2 = getPositionX( y2, h, 5 );
+
+  if( Math.abs( py1 - py2 ) <= 1.0 ){
+    if( x2 - x1 >= 2 ){
+      d = 0; //. Right
+    }else if( x1 - x2 >= 2 ){
+      d = 2; //. Left
+    }
+  }else if( Math.abs( px1 - px2 ) <= 1.0 ){
+    if( y2 - y1 >= 2 ){
+      d = 1; //. Down
+    }else if( y1 - y2 >= 2 ){
+      d = 3; //. Up
+    }
+  }
+
+  return d;
+}
+
 function getStrokeOrbit(){
   var o = 99;  //. 無効
 
@@ -372,6 +406,20 @@ function getPositionX( x, w, n ){
   if( n > 0 ){
     for( var i = 0; i < n && p == -1; i ++ ){
       if( w / n * i <= x && x <= w / n * ( i + 1 ) ){
+        p = i;
+      }
+    }
+  }
+
+  return p;
+}
+
+function getPositionY( y, h, n ){
+  var p = -1;
+
+  if( n > 0 ){
+    for( var i = 0; i < n && p == -1; i ++ ){
+      if( h / n * i <= y && y <= h / n * ( i + 1 ) ){
         p = i;
       }
     }
